@@ -143,3 +143,63 @@ To implement the generated documentation from CodeGuide:
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+# trAIner Fitness App
+
+A cutting-edge fitness application that uses AI to help users create personalized workout plans, track their progress, and achieve their fitness goals.
+
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Set up environment variables (copy `.env.example` to `.env` and fill in the values)
+4. Run the development server:
+   ```
+   npm run dev
+   ```
+
+## Setting Up Perplexity AI Integration
+
+The trAIner app uses Perplexity AI for research-based fitness content. Follow these steps to set up the integration:
+
+1. **Get a Perplexity API Key**:
+   - Sign up for an account at [Perplexity AI](https://www.perplexity.ai/)
+   - Navigate to your account settings and generate an API key
+
+2. **Configure Environment Variables**:
+   - Add your API key to the `.env` file:
+     ```
+     PERPLEXITY_API_KEY=your_actual_api_key_here
+     ```
+
+3. **Testing the Integration**:
+   - Use the ExerciseResearch component to validate that the integration is working correctly
+   - Check the Network tab in your browser's developer tools to confirm API calls are successful
+
+4. **Troubleshooting**:
+   - If you encounter a 401 error, verify your API key is correct
+   - For development without an API key, the app will use simulated responses
+   - For more detailed troubleshooting, refer to `/documentation/perplexity_ai_integration.md`
+
+## Features
+
+- AI-powered workout plan generation
+- Exercise research with evidence-based information
+- Progress tracking with visual charts
+- Macro calculations and nutrition guidance
+- User authentication and profile management
+- Responsive design for mobile and desktop
+
+## Tech Stack
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Supabase
+- Clerk Authentication
+- OpenAI API
+- Perplexity AI

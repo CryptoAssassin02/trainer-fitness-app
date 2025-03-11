@@ -1,0 +1,108 @@
+[
+  {
+    "timestamp": "2025-03-11T18:17:02.562Z",
+    "checks": {
+      "health": {
+        "status": "error",
+        "error": "fetch is not a function"
+      },
+      "perplexity": {
+        "status": "skipped",
+        "reason": "PERPLEXITY_API_KEY not available"
+      },
+      "database": {
+        "status": "skipped",
+        "reason": "Supabase client not initialized"
+      }
+    },
+    "system": {
+      "cpuUsage": [
+        2.99267578125,
+        3.5576171875,
+        3.42529296875
+      ],
+      "memoryUsage": {
+        "rss": 62783488,
+        "heapTotal": 17661952,
+        "heapUsed": 10936288,
+        "external": 3392108,
+        "arrayBuffers": 73930
+      },
+      "totalMemory": 25769803776,
+      "freeMemory": 75251712,
+      "uptime": 0.061194791
+    }
+  },
+  {
+    "timestamp": "2025-03-11T18:18:02.199Z",
+    "checks": {
+      "health": {
+        "status": "failed",
+        "responseTime": 460,
+        "statusCode": 500,
+        "statusText": "Internal Server Error"
+      },
+      "perplexity": {
+        "status": "skipped",
+        "reason": "PERPLEXITY_API_KEY not available"
+      },
+      "database": {
+        "status": "skipped",
+        "reason": "Supabase client not initialized"
+      }
+    },
+    "system": {
+      "cpuUsage": [
+        3.732421875,
+        3.6494140625,
+        3.46337890625
+      ],
+      "memoryUsage": {
+        "rss": 62816256,
+        "heapTotal": 17924096,
+        "heapUsed": 9956336,
+        "external": 3181855,
+        "arrayBuffers": 65738
+      },
+      "totalMemory": 25769803776,
+      "freeMemory": 91127808,
+      "uptime": 0.05701725
+    }
+  },
+  {
+    "timestamp": "2025-03-11T18:19:02.206Z",
+    "checks": {
+      "health": {
+        "status": "failed",
+        "responseTime": 133,
+        "statusCode": 404,
+        "statusText": "Not Found"
+      },
+      "perplexity": {
+        "status": "skipped",
+        "reason": "PERPLEXITY_API_KEY not available"
+      },
+      "database": {
+        "status": "skipped",
+        "reason": "Supabase client not initialized"
+      }
+    },
+    "system": {
+      "cpuUsage": [
+        3.9814453125,
+        3.7509765625,
+        3.5126953125
+      ],
+      "memoryUsage": {
+        "rss": 43401216,
+        "heapTotal": 11567104,
+        "heapUsed": 9083600,
+        "external": 3325056,
+        "arrayBuffers": 65702
+      },
+      "totalMemory": 25769803776,
+      "freeMemory": 379961344,
+      "uptime": 60.06467875
+    }
+  }
+]

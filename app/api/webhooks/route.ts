@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { stripe } from '@/utils/stripe/config';
+import { logger } from '@/utils/logger';
 import {
   upsertProductRecord,
   upsertPriceRecord,
@@ -28,12 +29,14 @@ export async function POST(req: Request) {
   let event: Stripe.Event;
 
   try {
-    if (!sig || !webhookSecret)
+    if (!sig || !webhookSecret) {
+      logger.error('Webhook secret not found');
       return new Response('Webhook secret not found.', { status: 400 });
+    }
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-    console.log(`🔔  Webhook received: ${event.type}`);
+    logger.info(`Webhook received: ${event.type}`);
   } catch (err: any) {
-    console.log(`❌ Error message: ${err.message}`);
+    logger.error(`Webhook Error: ${err.message}`);
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
@@ -43,16 +46,20 @@ export async function POST(req: Request) {
         case 'product.created':
         case 'product.updated':
           await upsertProductRecord(event.data.object as Stripe.Product);
+          logger.info(`Product ${event.type}`, { productId: (event.data.object as Stripe.Product).id });
           break;
         case 'price.created':
         case 'price.updated':
           await upsertPriceRecord(event.data.object as Stripe.Price);
+          logger.info(`Price ${event.type}`, { priceId: (event.data.object as Stripe.Price).id });
           break;
         case 'price.deleted':
           await deletePriceRecord(event.data.object as Stripe.Price);
+          logger.info('Price deleted', { priceId: (event.data.object as Stripe.Price).id });
           break;
         case 'product.deleted':
           await deleteProductRecord(event.data.object as Stripe.Product);
+          logger.info('Product deleted', { productId: (event.data.object as Stripe.Product).id });
           break;
         case 'customer.subscription.created':
         case 'customer.subscription.updated':
@@ -63,6 +70,10 @@ export async function POST(req: Request) {
             subscription.customer as string,
             event.type === 'customer.subscription.created'
           );
+          logger.info(`Subscription ${event.type}`, { 
+            subscriptionId: subscription.id,
+            customerId: subscription.customer
+          });
           break;
         case 'checkout.session.completed':
           const checkoutSession = event.data.object as Stripe.Checkout.Session;
@@ -73,13 +84,17 @@ export async function POST(req: Request) {
               checkoutSession.customer as string,
               true
             );
+            logger.info('Checkout session completed', { 
+              subscriptionId,
+              customerId: checkoutSession.customer
+            });
           }
           break;
         default:
-          console.log(`Unhandled event type ${event.type}`);
+          logger.warn(`Unhandled event type ${event.type}`);
       }
     } catch (error) {
-      console.log(error);
+      logger.error('Webhook handler failed', error);
       return new Response(
         'Webhook handler failed. View your Next.js function logs.',
         {
@@ -88,6 +103,7 @@ export async function POST(req: Request) {
       );
     }
   } else {
+    logger.warn(`Unsupported event type: ${event.type}`);
     return new Response(`Unsupported event type: ${event.type}`);
   }
   return new Response(JSON.stringify({ received: true }));

@@ -1,226 +1,430 @@
 export type Json =
-    | string
-    | number
-    | boolean
-    | null
-    | { [key: string]: Json | undefined }
-    | Json[]
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
-export type Database = {
-    graphql_public: {
-        Tables: {
-            [_ in never]: never
+export interface Database {
+  public: {
+    Tables: {
+      profiles: {
+        Row: {
+          id: string
+          first_name: string | null
+          last_name: string | null
+          bio: string | null
+          height: number | null
+          weight: number | null
+          age: number | null
+          gender: string | null
+          unit_system: string
+          created_at: string
+          updated_at: string
         }
-        Views: {
-            [_ in never]: never
+        Insert: {
+          id: string
+          first_name?: string | null
+          last_name?: string | null
+          bio?: string | null
+          height?: number | null
+          weight?: number | null
+          age?: number | null
+          gender?: string | null
+          unit_system?: string
+          created_at?: string
+          updated_at?: string
         }
-        Functions: {
-            graphql: {
-                Args: {
-                    operationName?: string
-                    query?: string
-                    variables?: Json
-                    extensions?: Json
-                }
-                Returns: Json
-            }
+        Update: {
+          id?: string
+          first_name?: string | null
+          last_name?: string | null
+          bio?: string | null
+          height?: number | null
+          weight?: number | null
+          age?: number | null
+          gender?: string | null
+          unit_system?: string
+          created_at?: string
+          updated_at?: string
         }
-        Enums: {
-            [_ in never]: never
+      }
+      workout_plans: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          goal: string
+          experience_level: string
+          equipment: string
+          days_per_week: number
+          duration: number
+          preferences: string | null
+          injuries: string | null
+          include_cardio: boolean
+          include_mobility: boolean
+          plan_content: Json
+          is_active: boolean
+          created_at: string
+          updated_at: string
         }
-        CompositeTypes: {
-            [_ in never]: never
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          goal: string
+          experience_level: string
+          equipment: string
+          days_per_week: number
+          duration: number
+          preferences?: string | null
+          injuries?: string | null
+          include_cardio?: boolean
+          include_mobility?: boolean
+          plan_content: Json
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
         }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          goal?: string
+          experience_level?: string
+          equipment?: string
+          days_per_week?: number
+          duration?: number
+          preferences?: string | null
+          injuries?: string | null
+          include_cardio?: boolean
+          include_mobility?: boolean
+          plan_content?: Json
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      workout_days: {
+        Row: {
+          id: string
+          workout_plan_id: string
+          day_of_week: string
+          workout_type: string
+          exercises_count: number
+          duration: string
+          intensity: string
+          is_rest_day: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          workout_plan_id: string
+          day_of_week: string
+          workout_type: string
+          exercises_count: number
+          duration: string
+          intensity: string
+          is_rest_day?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          workout_plan_id?: string
+          day_of_week?: string
+          workout_type?: string
+          exercises_count?: number
+          duration?: string
+          intensity?: string
+          is_rest_day?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      exercises: {
+        Row: {
+          id: string
+          workout_day_id: string
+          name: string
+          sets: number | null
+          reps: string | null
+          rest_period: string | null
+          technique_notes: string | null
+          order_index: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          workout_day_id: string
+          name: string
+          sets?: number | null
+          reps?: string | null
+          rest_period?: string | null
+          technique_notes?: string | null
+          order_index: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          workout_day_id?: string
+          name?: string
+          sets?: number | null
+          reps?: string | null
+          rest_period?: string | null
+          technique_notes?: string | null
+          order_index?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      progress_checkins: {
+        Row: {
+          id: string
+          user_id: string
+          weight: number
+          body_fat: number | null
+          chest: number | null
+          waist: number | null
+          arms: number | null
+          legs: number | null
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          weight: number
+          body_fat?: number | null
+          chest?: number | null
+          waist?: number | null
+          arms?: number | null
+          legs?: number | null
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          weight?: number
+          body_fat?: number | null
+          chest?: number | null
+          waist?: number | null
+          arms?: number | null
+          legs?: number | null
+          notes?: string | null
+          created_at?: string
+        }
+      }
+      nutrition_macros: {
+        Row: {
+          id: string
+          user_id: string
+          calories: number
+          protein: number
+          carbs: number
+          fat: number
+          goal: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          calories: number
+          protein: number
+          carbs: number
+          fat: number
+          goal: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          calories?: number
+          protein?: number
+          carbs?: number
+          fat?: number
+          goal?: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      notification_preferences: {
+        Row: {
+          user_id: string
+          email_workout: boolean
+          email_progress: boolean
+          email_nutrition: boolean
+          push_workout: boolean
+          push_progress: boolean
+          push_nutrition: boolean
+          sms_workout: boolean
+          sms_progress: boolean
+          sms_nutrition: boolean
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          email_workout?: boolean
+          email_progress?: boolean
+          email_nutrition?: boolean
+          push_workout?: boolean
+          push_progress?: boolean
+          push_nutrition?: boolean
+          sms_workout?: boolean
+          sms_progress?: boolean
+          sms_nutrition?: boolean
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          email_workout?: boolean
+          email_progress?: boolean
+          email_nutrition?: boolean
+          push_workout?: boolean
+          push_progress?: boolean
+          push_nutrition?: boolean
+          sms_workout?: boolean
+          sms_progress?: boolean
+          sms_nutrition?: boolean
+          updated_at?: string
+        }
+      }
+      perplexity_cache: {
+        Row: {
+          id: string
+          query_hash: string
+          query: string
+          system_content: string
+          response: string
+          created_at: string
+          last_accessed: string
+          access_count: number
+          model: string | null
+        }
+        Insert: {
+          id?: string
+          query_hash: string
+          query: string
+          system_content: string
+          response: string
+          created_at?: string
+          last_accessed?: string
+          access_count?: number
+          model?: string | null
+        }
+        Update: {
+          id?: string
+          query_hash?: string
+          query?: string
+          system_content?: string
+          response?: string
+          created_at?: string
+          last_accessed?: string
+          access_count?: number
+          model?: string | null
+        }
+        Relationships: []
+      }
+      perplexity_analytics: {
+        Row: {
+          id: string
+          user_id: string | null
+          query: string
+          system_content: string | null
+          model: string | null
+          success: boolean
+          error_message: string | null
+          response_time_ms: number
+          timestamp: string
+          cached: boolean
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          query: string
+          system_content?: string | null
+          model?: string | null
+          success: boolean
+          error_message?: string | null
+          response_time_ms: number
+          timestamp?: string
+          cached?: boolean
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          query?: string
+          system_content?: string | null
+          model?: string | null
+          success?: boolean
+          error_message?: string | null
+          response_time_ms?: number
+          timestamp?: string
+          cached?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "perplexity_analytics_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      perplexity_rate_limits: {
+        Row: {
+          id: string
+          requests_per_minute: number
+          requests_per_day: number
+          last_reset_minute: string
+          last_reset_day: string
+          current_minute_count: number
+          current_day_count: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          requests_per_minute: number
+          requests_per_day: number
+          last_reset_minute?: string
+          last_reset_day?: string
+          current_minute_count?: number
+          current_day_count?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          requests_per_minute?: number
+          requests_per_day?: number
+          last_reset_minute?: string
+          last_reset_day?: string
+          current_minute_count?: number
+          current_day_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
-    public: {
-        Tables: {
-            customers: {
-                Row: {
-                    id: string
-                    stripe_customer_id: string | null
-                }
-                Insert: {
-                    id: string
-                    stripe_customer_id?: string | null
-                }
-                Update: {
-                    id?: string
-                    stripe_customer_id?: string | null
-                }
-                Relationships: []
-            }
-            prices: {
-                Row: {
-                    active: boolean | null
-                    currency: string | null
-                    description: string | null
-                    id: string
-                    interval: Database["public"]["Enums"]["pricing_plan_interval"] | null
-                    interval_count: number | null
-                    metadata: Json | null
-                    product_id: string | null
-                    trial_period_days: number | null
-                    type: Database["public"]["Enums"]["pricing_type"] | null
-                    unit_amount: number | null
-                }
-                Insert: {
-                    active?: boolean | null
-                    currency?: string | null
-                    description?: string | null
-                    id: string
-                    interval?: Database["public"]["Enums"]["pricing_plan_interval"] | null
-                    interval_count?: number | null
-                    metadata?: Json | null
-                    product_id?: string | null
-                    trial_period_days?: number | null
-                    type?: Database["public"]["Enums"]["pricing_type"] | null
-                    unit_amount?: number | null
-                }
-                Update: {
-                    active?: boolean | null
-                    currency?: string | null
-                    description?: string | null
-                    id?: string
-                    interval?: Database["public"]["Enums"]["pricing_plan_interval"] | null
-                    interval_count?: number | null
-                    metadata?: Json | null
-                    product_id?: string | null
-                    trial_period_days?: number | null
-                    type?: Database["public"]["Enums"]["pricing_type"] | null
-                    unit_amount?: number | null
-                }
-                Relationships: [
-                    {
-                        foreignKeyName: "prices_product_id_fkey"
-                        columns: ["product_id"]
-                        isOneToOne: false
-                        referencedRelation: "products"
-                        referencedColumns: ["id"]
-                    },
-                ]
-            }
-            products: {
-                Row: {
-                    active: boolean | null
-                    description: string | null
-                    id: string
-                    image: string | null
-                    live_mode: boolean | null
-                    marketing_features: string[] | null
-                    metadata: Json | null
-                    name: string | null
-                }
-                Insert: {
-                    active?: boolean | null
-                    description?: string | null
-                    id: string
-                    image?: string | null
-                    live_mode?: boolean | null
-                    marketing_features?: string[] | null
-                    metadata?: Json | null
-                    name?: string | null
-                }
-                Update: {
-                    active?: boolean | null
-                    description?: string | null
-                    id?: string
-                    image?: string | null
-                    live_mode?: boolean | null
-                    marketing_features?: string[] | null
-                    metadata?: Json | null
-                    name?: string | null
-                }
-                Relationships: []
-            }
-            subscriptions: {
-                Row: {
-                    cancel_at: string | null
-                    cancel_at_period_end: boolean | null
-                    canceled_at: string | null
-                    created: string
-                    current_period_end: string
-                    current_period_start: string
-                    ended_at: string | null
-                    id: string
-                    metadata: Json | null
-                    price_id: string | null
-                    quantity: number | null
-                    status: Database["public"]["Enums"]["subscription_status"] | null
-                    trial_end: string | null
-                    trial_start: string | null
-                    user_id: string
-                }
-                Insert: {
-                    cancel_at?: string | null
-                    cancel_at_period_end?: boolean | null
-                    canceled_at?: string | null
-                    created?: string
-                    current_period_end?: string
-                    current_period_start?: string
-                    ended_at?: string | null
-                    id: string
-                    metadata?: Json | null
-                    price_id?: string | null
-                    quantity?: number | null
-                    status?: Database["public"]["Enums"]["subscription_status"] | null
-                    trial_end?: string | null
-                    trial_start?: string | null
-                    user_id: string
-                }
-                Update: {
-                    cancel_at?: string | null
-                    cancel_at_period_end?: boolean | null
-                    canceled_at?: string | null
-                    created?: string
-                    current_period_end?: string
-                    current_period_start?: string
-                    ended_at?: string | null
-                    id?: string
-                    metadata?: Json | null
-                    price_id?: string | null
-                    quantity?: number | null
-                    status?: Database["public"]["Enums"]["subscription_status"] | null
-                    trial_end?: string | null
-                    trial_start?: string | null
-                    user_id?: string
-                }
-                Relationships: [
-                    {
-                        foreignKeyName: "subscriptions_price_id_fkey"
-                        columns: ["price_id"]
-                        isOneToOne: false
-                        referencedRelation: "prices"
-                        referencedColumns: ["id"]
-                    },
-                ]
-            }
-        }
-        Views: {
-            [_ in never]: never
-        }
-        Functions: {
-            requesting_user_id: {
-                Args: Record<PropertyKey, never>
-                Returns: string
-            }
-        }
-        Enums: {
-            pricing_plan_interval: "day" | "week" | "month" | "year"
-            pricing_type: "one_time" | "recurring"
-            subscription_status:
-            | "trialing"
-            | "active"
-            | "canceled"
-            | "incomplete"
-            | "incomplete_expired"
-            | "past_due"
-            | "unpaid"
-            | "paused"
-        }
-        CompositeTypes: {
-            [_ in never]: never
-        }
+    Views: {
+      [_ in never]: never
     }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+  }
 }
 
 type PublicSchema = Database[Extract<keyof Database, "public">]
@@ -303,20 +507,5 @@ export type Enums<
     ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
     : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
-    : never
-
-export type CompositeTypes<
-    PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
-    | { schema: keyof Database },
-    CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-        schema: keyof Database
-    }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-    ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-    : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 

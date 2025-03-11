@@ -1,0 +1,136 @@
+---
+description: Apply these rules when creating the project
+globs: 
+alwaysApply: true
+---
+## Project Overview
+
+*   **Type:** cursor_project_rules
+*   **Description:** trAIner App Project Outline – An all-in-one AI fitness app that leverages secure authentication, dynamic user profiles, and advanced AI integrations (Supabase, Perplexity AI, OpenAI API) to generate personalized workout plans, macro goals, and nutritional recommendations.
+*   **Primary Goal:** Simplify and enhance the fitness planning experience for users (from beginners to advanced athletes) by delivering adaptive, AI-driven workout and nutritional plans that evolve with user progress and feedback.
+*   **Development Tools:** Cursor IDE for rapid development and component building.
+*   **Hosting:** Utilization of Vercel for scalable and efficient hosting solutions.
+
+## Project Structure
+
+### Framework-Specific Routing
+
+*   **Directory Rules:**
+
+    *   `[react_router6+latest]`: Use a nested route structure under `src/routes/` for grouping feature-specific components, matching React Router 6 best practices.
+    *   Example 1: "Next.js 14 (App Router)" → `app/[route]/page.tsx` conventions
+    *   Example 2: "Next.js (Pages Router)" → `pages/[route].tsx` pattern
+    *   Example 3: "React Router 6" → `src/routes/` with `createBrowserRouter`
+
+### Core Directories
+
+*   **Versioned Structure:**
+
+    *   `[app/]`: For projects adopting Next.js 14 App Router style – primarily used when server actions or nested routing is required.
+    *   Example 1: `app/api` → Next.js 14 API routes with Route Handlers
+    *   Example 2: `src/views` → For component-based pages if using a framework like Vue 3 with the Composition API
+
+### Key Files
+
+*   **Stack-Versioned Patterns:**
+
+    *   `[file]`: Adhere to implementation styles based on the technology version in use
+    *   Example 1: `app/dashboard/layout.tsx` → Next.js 14 root layouts
+    *   Example 2: `pages/_app.js` → Next.js Pages Router customization
+
+## Tech Stack Rules
+
+*   **Version Enforcement:**
+
+    *   `react@latest`: Utilize functional components with hooks and adopt a modular routing strategy.
+    *   `node_js@current`: Ensure asynchronous operations with robust error handling and environment-based configuration.
+    *   `supabase_authentication@latest`: Securely manage user sessions, tokens, and enforce strict access rules.
+    *   `supabase_database@latest`: Implement proper data indexing, real-time subscriptions, and encryption at rest.
+    *   `perplexity_ai@latest`: Integrate exercise research with caching and rate limiting to ensure consistent responses.
+    *   `openai_api@latest`: Generate workout and nutritional plans using prompt validation and token usage monitoring.
+    *   `notification_services@latest`: Deliver notifications based on user preferences with fallback protocols.
+    *   `v0_frontend_component_builder@latest`: Build reusable UI components following modern design standards.
+    *   `claude_3_7_sonnet@latest`: Leverage hybrid reasoning for advanced AI tasks and ensure detailed logging.
+    *   `chatgpt@latest`: Use natural language processing for editing and plan personalization with proper error handling.
+
+## PRD Compliance
+
+*   **Non-Negotiable:**
+
+    *   "Secure user authentication, comprehensive profile setup, AI-driven workout plan generation, hybrid plan editing, and dynamic progress tracking are mandatory." – All implementations must strictly adhere to the outlined PRD requirements.
+
+## App Flow Integration
+
+*   **Stack-Aligned Flow:**
+
+    *   Example: "React Router 6 Auth Flow → `src/routes/auth/login.jsx` with secure Supabase-backed authentication procedures and real-time UI updates"
+
+## Best Practices
+
+*   **react**
+
+    *   Utilize functional components with hooks and context for state management.
+    *   Adopt code splitting and lazy loading for performance optimization.
+    *   Ensure responsive design practices and accessibility compliance.
+
+*   **node_js**
+
+    *   Use asynchronous patterns (async/await) with proper error handling.
+    *   Manage configuration via environment variables and secure secret storage.
+    *   Implement comprehensive logging and automated testing.
+
+*   **supabase_authentication**
+
+    *   Always validate inputs and securely store tokens.
+    *   Enforce role-based access when applicable.
+    *   Regularly audit security protocols.
+
+*   **supabase_database**
+
+    *   Optimize queries with indexing and caching strategies.
+    *   Employ encryption for sensitive data both in transit and at rest.
+    *   Schedule regular backups and integrity checks.
+
+*   **perplexity_ai**
+
+    *   Validate AI responses for consistency and accuracy.
+    *   Implement caching to reduce redundant requests.
+    *   Handle rate limits gracefully.
+
+*   **openai_api**
+
+    *   Validate prompts to ensure accurate workout plan generation.
+    *   Monitor token usage closely in production environments.
+    *   Incorporate fallback mechanisms for failed API requests.
+
+*   **notification_services**
+
+    *   Respect user notification preferences to avoid spamming.
+    *   Ensure notifications are timely and actionable.
+    *   Provide clear fallback(s) if primary delivery methods fail.
+
+*   **v0_frontend_component_builder**
+
+    *   Build modular, reusable, and responsive UI components.
+    *   Maintain consistent design patterns across the app.
+    *   Leverage live preview and real-time feedback during development.
+
+*   **claude_3_7_sonnet**
+
+    *   Employ advanced reasoning for complex inputs.
+    *   Keep detailed logs and performance metrics.
+    *   Ensure fallbacks are in place for any unexpected outputs.
+
+*   **chatgpt**
+
+    *   Utilize for natural language based plan editing and feedback aggregation.
+    *   Validate and sanitize all AI-driven responses.
+    *   Monitor for performance and accuracy during plan generation.
+
+## Rules
+
+*   Derive folder/file patterns **directly** from techStackDoc versions.
+*   If Next.js 14 App Router: Enforce `app/` directory with nested route folders.
+*   If Pages Router: Use `pages/*.tsx` flat structure.
+*   Mirror this logic for React Router, SvelteKit, etc.
+*   Never mix version patterns (e.g., no `pages/` in App Router projects).

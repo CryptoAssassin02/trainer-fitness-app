@@ -1,7 +1,11 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
+import { ClerkProvider } from '@clerk/nextjs'
+import { ThemeProvider } from 'next-themes'
+import { Toaster } from 'sonner'
 import TanstackClientProvider from '@/components/providers/tanstack-client-provider'
+import SupabaseProvider from '@/components/providers/supabase-provider'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -14,9 +18,11 @@ const geistMono = localFont({
   weight: '100 900',
 })
 
-export const metadata: Metadata = {
-  title: 'CodeGuide Starter Pro',
-  description: 'Starter kit from codeguide.dev',
+export function generateMetadata(): Metadata {
+  return {
+    title: 'trAIner - AI Fitness App',
+    description: 'Personalized workout plans powered by AI',
+  }
 }
 
 export default function RootLayout({
@@ -25,9 +31,18 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <TanstackClientProvider>{children}</TanstackClientProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          <ClerkProvider>
+            <SupabaseProvider>
+              <TanstackClientProvider>
+                {children}
+                <Toaster />
+              </TanstackClientProvider>
+            </SupabaseProvider>
+          </ClerkProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
