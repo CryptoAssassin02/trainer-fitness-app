@@ -218,32 +218,51 @@ The trAIner app uses Perplexity AI for research-based fitness content. Follow th
 - **Last Deployment**: Staging
 - **Environment**: Development
 
-## Monitoring
+## Monitoring System
 
-The application includes a comprehensive monitoring system that checks the health and performance of various components:
+The application includes a comprehensive monitoring system that tracks the health and performance of various services:
 
-- API health and responsiveness
-- Database connectivity
-- Perplexity AI integration
-- Authentication services
+- API Health: Checks the overall status of the application API
+- Database: Verifies database connectivity and operations
+- Perplexity AI: Monitors the integration with Perplexity AI services
+- Authentication: Ensures the authentication system is operational
 
-### Monitoring Tools
+### Monitoring Scripts
 
-- **Automated Monitoring**: GitHub Actions workflow runs checks every 12 hours
-- **Manual Monitoring**: Run monitoring scripts locally for immediate feedback
-- **Monitoring Reports**: Detailed reports are generated for each monitoring session
+Several scripts are available to test and visualize the monitoring system:
 
-### Running Monitoring Locally
+- **Production Monitoring**: `node scripts/monitor.js [options]`
+  - Run monitoring against the production deployment
+  - Options: `--duration=<minutes> --interval=<seconds> --verbose`
 
-```bash
-# Run with default settings (5 minutes duration, 30 seconds interval)
-node scripts/monitor.js
+- **Test Monitoring**: `node scripts/test-monitoring.js [--visualize]`
+  - Run monitoring with visualization options
 
-# Run with custom settings
-node scripts/monitor.js --duration=10 --interval=60 --verbose
+- **Local Test** (for development): `node scripts/test-local-monitoring.js [--visualize]`
+  - Run a simulated test with mock data
+  - Perfect for testing visualization and UI without real API connections
+  - Generates mock results that simulate real-world scenarios
 
-# Quick test of the monitoring system
-node scripts/test-monitoring.js
-```
+### Monitoring Visualization
 
-For more details, see the [Monitoring Guide](./documentation/monitoring_guide.md).
+To view the monitoring results as a visual report:
+
+1. Run any monitoring script with the `--visualize` flag
+2. Open the generated `monitoring-report.html` file in your browser
+3. The report includes:
+   - Overall system status
+   - Service-specific metrics and statuses
+   - Response time graphs
+   - Success rate visualization
+
+### CI/CD Integration
+
+The monitoring system is integrated with CI/CD workflows:
+
+- Regular health checks run on a 12-hour schedule
+- Status badge automatically updates on the repository
+- Monitoring results are saved as artifacts for later analysis
+
+### Monitoring Dashboard
+
+Access the monitoring dashboard at `/monitoring` when running the application locally or in production.
