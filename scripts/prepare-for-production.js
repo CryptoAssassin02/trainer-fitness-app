@@ -8,6 +8,9 @@
  * 3. Verifying environment variables
  * 
  * Run with: node scripts/prepare-for-production.js
+ * 
+ * Options:
+ * --auto-confirm: Skip confirmation prompts (useful for CI/CD)
  */
 
 const fs = require('fs');
@@ -20,6 +23,10 @@ const red = (text) => `\x1b[31m${text}\x1b[0m`;
 const yellow = (text) => `\x1b[33m${text}\x1b[0m`;
 const blue = (text) => `\x1b[34m${text}\x1b[0m`;
 const bold = (text) => `\x1b[1m${text}\x1b[0m`;
+
+// Parse command line arguments
+const args = process.argv.slice(2);
+const autoConfirm = args.includes('--auto-confirm');
 
 async function main() {
   console.log(blue(bold('🚀 Preparing App for Production\n')));
@@ -45,28 +52,36 @@ async function main() {
         console.log(green('perplexity-sdk is already installed'));
       }
       
-      // Ask for confirmation
-      console.log('');
-      console.log(yellow('⚠️  We need to replace the mock perplexity-ai with the real SDK for production'));
-      console.log(yellow('This will run the following commands:'));
-      console.log('1. npm uninstall perplexity-ai');
-      console.log('2. npm install perplexity-sdk --save (if not already installed)');
-      console.log('3. Update imports in your code (you may need to do this manually)');
+      // Ask for confirmation, unless auto-confirm is enabled
+      let shouldProceed = autoConfirm;
       
-      const readline = require('readline');
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-      });
-      
-      const answer = await new Promise((resolve) => {
-        rl.question('\nDo you want to proceed? (y/n): ', (answer) => {
-          resolve(answer.toLowerCase());
-          rl.close();
+      if (!autoConfirm) {
+        console.log('');
+        console.log(yellow('⚠️  We need to replace the mock perplexity-ai with the real SDK for production'));
+        console.log(yellow('This will run the following commands:'));
+        console.log('1. npm uninstall perplexity-ai');
+        console.log('2. npm install perplexity-sdk --save (if not already installed)');
+        console.log('3. Update imports in your code (you may need to do this manually)');
+        
+        const readline = require('readline');
+        const rl = readline.createInterface({
+          input: process.stdin,
+          output: process.stdout
         });
-      });
+        
+        const answer = await new Promise((resolve) => {
+          rl.question('\nDo you want to proceed? (y/n): ', (answer) => {
+            resolve(answer.toLowerCase());
+            rl.close();
+          });
+        });
+        
+        shouldProceed = (answer === 'y' || answer === 'yes');
+      } else {
+        console.log(yellow('Auto-confirm enabled. Proceeding without confirmation...'));
+      }
       
-      if (answer === 'y' || answer === 'yes') {
+      if (shouldProceed) {
         // Perform the updates
         console.log(yellow('\nRemoving mock perplexity-ai...'));
         execSync('npm uninstall perplexity-ai', { stdio: 'inherit' });
