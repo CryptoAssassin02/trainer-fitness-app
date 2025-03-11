@@ -210,9 +210,40 @@ The trAIner app uses Perplexity AI for research-based fitness content. Follow th
 [![Deploy](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/deploy.yml/badge.svg)](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/deploy.yml)
 [![Simple CI](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/simple-ci.yml/badge.svg)](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/simple-ci.yml)
 [![Code Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/ci.yml)
+[![Monitoring](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/monitor.yml/badge.svg)](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/monitor.yml)
 
 ## Production Status
 
 - **Current Version**: 1.0.0
 - **Last Deployment**: Staging
 - **Environment**: Development
+
+## Monitoring
+
+The application includes a comprehensive monitoring system that checks the health and performance of various components:
+
+- API health and responsiveness
+- Database connectivity
+- Perplexity AI integration
+- Authentication services
+
+### Monitoring Tools
+
+- **Automated Monitoring**: GitHub Actions workflow runs checks every 12 hours
+- **Manual Monitoring**: Run monitoring scripts locally for immediate feedback
+- **Monitoring Reports**: Detailed reports are generated for each monitoring session
+
+### Running Monitoring Locally
+
+```bash
+# Run with default settings (5 minutes duration, 30 seconds interval)
+node scripts/monitor.js
+
+# Run with custom settings
+node scripts/monitor.js --duration=10 --interval=60 --verbose
+
+# Quick test of the monitoring system
+node scripts/test-monitoring.js
+```
+
+For more details, see the [Monitoring Guide](./documentation/monitoring_guide.md).

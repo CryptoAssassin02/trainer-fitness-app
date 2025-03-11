@@ -1,0 +1,142 @@
+name: Application Monitoring
+
+on:
+  schedule:
+    # Run every 12 hours
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: 'Monitoring duration in minutes (0 for a single check)'
+        required: true
+        default: '0'
+        type: number
+      interval:
+        description: 'Interval between checks in minutes (only if duration > 0)'
+        required: false
+        default: '5'
+        type: number
+      verbose:
+        description: 'Enable verbose logging'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  monitor:
+    name: Monitor Application Health
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://trainer-fitness-app.example.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install monitoring dependencies
+        run: npm install node-fetch@2 --save-dev
+      
+      - name: Make monitor script executable
+        run: chmod +x scripts/monitor.js
+      
+      - name: Run monitoring (scheduled)
+        if: github.event_name == 'schedule'
+        run: node scripts/monitor.js --interval 5 --duration 30 --output monitoring-results.json --verbose
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+          APP_URL: https://trainer-fitness-app.example.com
+      
+      - name: Run monitoring (manual)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          DURATION=${{ github.event.inputs.duration }}
+          INTERVAL=${{ github.event.inputs.interval }}
+          VERBOSE_FLAG=""
+          
+          if [[ "${{ github.event.inputs.verbose }}" == "true" ]]; then
+            VERBOSE_FLAG="--verbose"
+          fi
+          
+          if [[ "$DURATION" == "0" ]]; then
+            echo "Running a single health check..."
+            node scripts/monitor.js --duration 0 --output monitoring-results.json $VERBOSE_FLAG
+          else
+            echo "Running monitoring for $DURATION minutes with $INTERVAL minute intervals..."
+            node scripts/monitor.js --interval $INTERVAL --duration $DURATION --output monitoring-results.json $VERBOSE_FLAG
+          fi
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+          APP_URL: https://trainer-fitness-app.example.com
+      
+      - name: Save monitoring results
+        uses: actions/upload-artifact@v3
+        with:
+          name: monitoring-results
+          path: monitoring-results.json
+          retention-days: 30
+      
+      - name: Generate visualization
+        run: |
+          chmod +x scripts/visualize-monitoring.js
+          node scripts/visualize-monitoring.js
+      
+      - name: Save visualization
+        uses: actions/upload-artifact@v3
+        with:
+          name: monitoring-visualization
+          path: monitoring-report.html
+          retention-days: 30
+      
+      - name: Generate monitoring report
+        run: |
+          echo "## Application Health Monitoring Results" >> $GITHUB_STEP_SUMMARY
+          echo "📊 **Monitoring Report**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Extract basic stats from the JSON file
+          TOTAL_CHECKS=$(cat monitoring-results.json | grep -c "timestamp")
+          SUCCESS_COUNT=$(cat monitoring-results.json | grep -c '"status": "success"')
+          FAILED_COUNT=$(cat monitoring-results.json | grep -c '"status": "failed"')
+          ERROR_COUNT=$(cat monitoring-results.json | grep -c '"status": "error"')
+          
+          echo "### Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔢 Total Checks: $TOTAL_CHECKS" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Successful Checks: $SUCCESS_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "- ❌ Failed Checks: $FAILED_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️ Error Checks: $ERROR_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Services Status" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔗 API Health: $(if [ $SUCCESS_COUNT -gt 0 ]; then echo "✅ Operational"; else echo "❌ Experiencing Issues"; fi)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🤖 Perplexity API: $(if grep -q "perplexity.*success" monitoring-results.json; then echo "✅ Operational"; else echo "⚠️ Check Needed"; fi)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🗄️ Database: $(if grep -q "database.*success" monitoring-results.json; then echo "✅ Operational"; else echo "⚠️ Check Needed"; fi)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Important Note" >> $GITHUB_STEP_SUMMARY
+          echo "For detailed monitoring information, download the results artifact." >> $GITHUB_STEP_SUMMARY
+          
+          if [ $FAILED_COUNT -gt 0 ] || [ $ERROR_COUNT -gt 0 ]; then
+            echo "⚠️ **Warning**: Issues detected during monitoring. Manual investigation recommended." >> $GITHUB_STEP_SUMMARY
+          fi 

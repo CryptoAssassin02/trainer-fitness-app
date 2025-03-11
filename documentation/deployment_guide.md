@@ -145,6 +145,46 @@ The application can also be deployed to other platforms that support Node.js, su
 
 Follow the specific deployment instructions for your chosen platform, ensuring that all environment variables are properly configured.
 
+## Post-Deployment Monitoring
+
+After deploying the application, it's important to monitor its health and performance to ensure it's functioning correctly.
+
+### Monitoring System
+
+The application includes a comprehensive monitoring system that checks various components:
+
+1. **API Health**: Verifies that the API endpoints are responding correctly
+2. **Database Connectivity**: Checks that the application can connect to the database
+3. **Perplexity AI Integration**: Validates that the AI features are working properly
+4. **Authentication Services**: Ensures that user authentication is functioning
+
+### Automated Monitoring
+
+The monitoring system runs automatically through GitHub Actions:
+
+1. **Scheduled Checks**: Health checks run every 12 hours
+2. **Manual Triggers**: You can manually trigger monitoring with custom parameters
+3. **Deployment Verification**: Monitoring runs automatically after each deployment
+
+### Monitoring Dashboard
+
+Monitoring results are available in several ways:
+
+1. **GitHub Actions**: View results in the Actions tab of the repository
+2. **Monitoring Reports**: Check the `monitoring-results` directory for detailed reports
+3. **Status Badge**: The README includes a monitoring status badge
+
+### Responding to Issues
+
+If the monitoring system detects issues:
+
+1. Check the detailed logs for specific error messages
+2. Verify that all required environment variables are set correctly
+3. Check service dependencies (Supabase, Perplexity, Clerk)
+4. Review recent code changes that might have introduced issues
+
+For more details, see the [Monitoring Guide](./monitoring_guide.md).
+
 ## Troubleshooting
 
 If you encounter issues during deployment:

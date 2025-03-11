@@ -120,12 +120,27 @@ jobs:
         run: |
           echo "Running health checks on Staging environment..."
           echo "Health check passed!"
+      
+      - name: Run post-deployment monitoring
+        run: |
+          echo "Running post-deployment monitoring to verify all services are operational..."
+          chmod +x deploy/scripts/monitor.js
+          NODE_ENV=staging PROD_URL=https://staging.trainer-fitness-app.example.com node deploy/scripts/monitor.js --duration=1 --interval=10
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
           
       - name: Summary
         run: |
           echo "## Staging Deployment Results" >> $GITHUB_STEP_SUMMARY
           echo "✅ Deployment to Staging: Successful" >> $GITHUB_STEP_SUMMARY
           echo "✅ Health Check: Passed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Post-Deployment Monitoring: Completed" >> $GITHUB_STEP_SUMMARY
           echo "🔗 Environment URL: https://staging.trainer-fitness-app.example.com" >> $GITHUB_STEP_SUMMARY
   
   deploy_to_production:
@@ -158,10 +173,25 @@ jobs:
         run: |
           echo "Running health checks on Production environment..."
           echo "Health check passed!"
+      
+      - name: Run post-deployment monitoring
+        run: |
+          echo "Running post-deployment monitoring to verify all services are operational..."
+          chmod +x deploy/scripts/monitor.js
+          NODE_ENV=production PROD_URL=https://trainer-fitness-app.example.com node deploy/scripts/monitor.js --duration=2 --interval=15
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
           
       - name: Summary
         run: |
           echo "## Production Deployment Results" >> $GITHUB_STEP_SUMMARY
           echo "✅ Deployment to Production: Successful" >> $GITHUB_STEP_SUMMARY
           echo "✅ Health Check: Passed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Post-Deployment Monitoring: Completed" >> $GITHUB_STEP_SUMMARY
           echo "🔗 Environment URL: https://trainer-fitness-app.example.com" >> $GITHUB_STEP_SUMMARY 
