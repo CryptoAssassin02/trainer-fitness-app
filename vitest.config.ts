@@ -8,6 +8,20 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'mocks/**',
+        '.next/',
+        'public/',
+        'coverage/',
+        'vitest.config.ts',
+        '**/*.d.ts',
+      ],
+      all: true,
+    },
   },
   resolve: {
     alias: {

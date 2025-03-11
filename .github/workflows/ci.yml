@@ -87,6 +87,28 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
       
+      - name: Run tests with coverage
+        id: coverage
+        if: steps.test.outcome == 'success'
+        run: npm run test:coverage
+        env:
+          # Set environment variables for testing
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+      
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v3
+        if: steps.coverage.outcome == 'success'
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+      
       - name: Check results
         run: |
           echo "## Build and Test Results" >> $GITHUB_STEP_SUMMARY
@@ -109,6 +131,14 @@ jobs:
           else
             echo "❌ Tests: Failed" >> $GITHUB_STEP_SUMMARY
             exit_code=1
+          fi
+          
+          if [ "${{ steps.coverage.outcome }}" == "success" ]; then
+            echo "✅ Code Coverage: Generated (see artifacts)" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.coverage.outcome }}" == "skipped" ]; then
+            echo "⚠️ Code Coverage: Skipped due to test failures" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Code Coverage: Failed to generate" >> $GITHUB_STEP_SUMMARY
           fi
           
           if [ "${exit_code}" == "1" ]; then
