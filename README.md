@@ -207,3 +207,12 @@ The trAIner app uses Perplexity AI for research-based fitness content. Follow th
 ## CI/CD Status
 
 [![CI](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/ci.yml/badge.svg)](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/ci.yml)
+[![Deploy](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/deploy.yml/badge.svg)](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/deploy.yml)
+[![Simple CI](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/simple-ci.yml/badge.svg)](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/simple-ci.yml)
+[![Code Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/ci.yml)
+
+## Production Status
+
+- **Current Version**: 1.0.0
+- **Last Deployment**: Staging
+- **Environment**: Development
