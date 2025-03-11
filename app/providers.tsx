@@ -1,43 +1,40 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useUser } from "@clerk/nextjs"
-import { ThemeProvider } from "@/components/providers/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
-import { Toaster as SonnerToaster } from "sonner"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import ErrorBoundary from "@/components/error-boundary"
-import { errorTracker } from "@/utils/error-tracking"
+import * as React from "react"
+import { ThemeProvider as NextThemesProvider } from "next-themes"
+import { Toaster } from "sonner"
+import { ClerkProvider } from "@clerk/nextjs"
+import TanstackClientProvider from "@/components/providers/tanstack-client-provider"
+import SupabaseProvider from "@/components/providers/supabase-provider"
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient())
-  const { user } = useUser()
-  
-  // Initialize error tracking
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      errorTracker.init({ userId: user?.id });
-      
-      if (user?.id) {
-        errorTracker.setUser(user.id);
-      }
-    }
-  }, [user?.id]);
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider 
-        attribute="class" 
-        defaultTheme="dark" 
-        enableSystem
-        disableTransitionOnChange
-      >
-        <ErrorBoundary>
-          {children}
-          <Toaster />
-          <SonnerToaster position="top-right" richColors closeButton />
-        </ErrorBoundary>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <NextThemesProvider 
+      attribute="class" 
+      defaultTheme="dark" 
+      enableSystem={true}
+      enableColorScheme={true}
+      storageKey="trainer-theme"
+      disableTransitionOnChange
+    >
+      <ClerkProvider>
+        <SupabaseProvider>
+          <TanstackClientProvider>
+            {children}
+            <Toaster 
+              position="top-right"
+              toastOptions={{
+                className: "bg-background border border-[#3E9EFF]/20 text-foreground",
+                style: {
+                  background: "var(--background)",
+                  color: "var(--foreground)",
+                  border: "1px solid rgba(62, 158, 255, 0.2)",
+                }
+              }}
+            />
+          </TanstackClientProvider>
+        </SupabaseProvider>
+      </ClerkProvider>
+    </NextThemesProvider>
   )
 } 
