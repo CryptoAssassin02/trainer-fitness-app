@@ -203,3 +203,7 @@ The trAIner app uses Perplexity AI for research-based fitness content. Follow th
 - Clerk Authentication
 - OpenAI API
 - Perplexity AI
+
+## CI/CD Status
+
+[![CI](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/ci.yml/badge.svg)](https://github.com/CryptoAssassin02/trainer-fitness-app/actions/workflows/ci.yml)
