@@ -3,45 +3,35 @@
 "use client"
 
 import React from 'react'
-import { Check, Dumbbell, Brain, LineChart, Salad, ArrowRight, Sparkles, Zap } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { Activity, BarChart3, Brain, FileText, Target, Zap, ArrowRight, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { useTheme } from "next-themes"
 
-const FeatureCard = ({ icon: Icon, title, description }: { icon: any, title: string, description: string }) => {
+interface FeatureCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  delay: number;
+}
+
+function FeatureCard({ icon, title, description, delay }: FeatureCardProps) {
   return (
-    <motion.div 
-      className="group relative flex flex-col items-center space-y-4 rounded-xl border border-[#3E9EFF]/10 bg-black/5 p-6 transition-all duration-300 hover:border-[#3E9EFF]/40 hover:shadow-lg hover:shadow-[#3E9EFF]/5"
-      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+    <motion.div
+      className="glow-effect flex flex-col rounded-xl border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md dark:border-border dark:shadow-lg dark:shadow-primary/5 dark:hover:shadow-primary/10"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.5, delay: delay * 0.1 }}
     >
-      {/* Glow effect */}
-      <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-b from-transparent to-[#3E9EFF]/5 opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100"></div>
-      
-      <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#3E9EFF]/20 to-[#3E9EFF]/10 p-3 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-[#3E9EFF]/30 group-hover:to-[#3E9EFF]/20">
-        <motion.div
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ 
-            repeat: Infinity, 
-            duration: 3,
-            ease: "easeInOut"
-          }}
-        >
-          <Icon className="h-8 w-8 text-[#3E9EFF] transition-transform duration-300 group-hover:scale-110" />
-        </motion.div>
-        <div className="absolute inset-0 -z-10 rounded-full bg-[#3E9EFF]/20 opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-100"></div>
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        {icon}
       </div>
-      
-      <h3 className="text-xl font-bold transition-colors duration-300 group-hover:text-[#3E9EFF]">{title}</h3>
-      
-      <p className="text-center text-gray-300 transition-colors duration-300 group-hover:text-white">
-        {description}
-      </p>
+      <h3 className="mb-2 text-xl font-bold">{title}</h3>
+      <p className="text-muted-foreground">{description}</p>
     </motion.div>
-  )
+  );
 }
 
 const StepCircle = ({ number }: { number: string }) => {
@@ -59,207 +49,226 @@ const StepCircle = ({ number }: { number: string }) => {
   );
 };
 
-const Features = React.memo(function Features() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { type: "spring", stiffness: 50 }
-    }
-  };
-
-  const features = [
-    {
-      icon: Dumbbell,
-      title: "Custom Workouts",
-      description: "AI-generated workout plans tailored to your goals, preferences, and fitness level."
-    },
-    {
-      icon: Salad,
-      title: "Nutrition Tracking",
-      description: "Automatically calculated macro goals based on your workout routine and body metrics."
-    },
-    {
-      icon: LineChart,
-      title: "Progress Tracking",
-      description: "Log and visualize your fitness journey with intuitive charts and check-ins."
-    },
-    {
-      icon: Brain,
-      title: "Smart Adaptation",
-      description: "Your plans evolve with you as you progress, ensuring optimal results over time."
-    }
-  ];
+export function Features() {
+  const { theme } = useTheme()
 
   return (
-    <section id="features" className="relative overflow-hidden bg-gradient-to-b from-gray-900 to-[#121212] py-24 sm:py-32">
-      {/* Background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-[#3E9EFF]/5 blur-3xl"></div>
-        <div className="absolute top-1/3 right-0 h-96 w-96 -rotate-12 bg-gradient-to-r from-[#3E9EFF]/0 to-[#3E9EFF]/5 blur-3xl"></div>
-      </div>
-
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <motion.div 
-          className="mb-20 flex flex-col items-center space-y-5 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.5 }}
-        >
+    <div id="features" className="bg-gradient-to-b from-features-from to-features-to py-24">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-16 text-center">
           <motion.div 
-            className="flex items-center rounded-full bg-[#3E9EFF]/10 px-4 py-2 text-sm font-medium text-[#3E9EFF]"
-            initial={{ scale: 0.9, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
+            className="inline-flex items-center justify-center rounded-full bg-background p-3 mb-6 shadow-lg dark:shadow-primary/5 sm:p-4"
+            initial={{ rotate: -5, opacity: 0 }}
+            whileInView={{ rotate: 0, opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ rotate: -5 }}
           >
-            <Sparkles className="mr-2 h-4 w-4" />
-            Powered by AI
+            <div className="flex items-center gap-2">
+              <div className="relative h-6 w-6 sm:h-7 sm:w-7">
+                <motion.div 
+                  className="absolute inset-0 rounded-full bg-primary/20 blur-sm"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                />
+                <svg 
+                  className="relative h-full w-full text-primary" 
+                  fill="none" 
+                  height="24" 
+                  stroke="currentColor" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth="2" 
+                  viewBox="0 0 24 24" 
+                  width="24" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M12 8V4H8"/>
+                  <rect height="12" rx="2" width="16" x="4" y="8"/>
+                  <path d="M2 14h2"/>
+                  <path d="M20 14h2"/>
+                  <path d="M15 13v2"/>
+                  <path d="M9 13v2"/>
+                </svg>
+              </div>
+              <p className="text-xs font-medium text-foreground sm:text-sm">Powered by AI</p>
+            </div>
           </motion.div>
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-            <span className="bg-gradient-to-r from-white via-[#3E9EFF] to-white bg-clip-text text-transparent">
+          
+          <motion.h2
+            className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <span className={theme === 'dark' ? 'text-gradient-dark' : 'text-gradient-light'}>
               Your Fitness Journey, Reimagined
             </span>
-          </h2>
-          <p className="max-w-[700px] text-gray-200 md:text-xl">
-            Everything you need to optimize your fitness journey, powered by artificial intelligence.
-          </p>
-        </motion.div>
-
-        {/* How it works section */}
-        <motion.div 
-          className="mb-28 flex flex-col items-center space-y-12"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.7 }}
-        >
-          <h3 className="text-2xl font-bold">
-            <span className="bg-gradient-to-r from-[#3E9EFF] to-white bg-clip-text text-transparent">
-              How It Works
-            </span>
-          </h3>
-
-          <div className="relative grid w-full max-w-5xl grid-cols-1 gap-8 gap-y-12 md:grid-cols-2 lg:grid-cols-4">
-            {/* Connecting line for desktop */}
-            <div className="absolute top-1/2 left-0 hidden h-0.5 w-full -translate-y-1/2 transform bg-gradient-to-r from-[#3E9EFF]/5 via-[#3E9EFF]/20 to-[#3E9EFF]/5 lg:block"></div>
-            
-            {/* Process steps */}
-            {[
-              { number: "01", title: "Create Profile", description: "Input your fitness level, goals, and preferences" },
-              { number: "02", title: "AI Analysis", description: "Our AI builds your personalized fitness plan" },
-              { number: "03", title: "Start Training", description: "Follow your customized workout routines" },
-              { number: "04", title: "Track Progress", description: "Monitor your improvements and adapt your plan" }
-            ].map((step, index) => (
-              <motion.div 
-                key={step.number}
-                className="relative flex flex-col items-center rounded-lg border border-[#3E9EFF]/20 bg-black/20 p-6 text-center shadow-sm transition-all duration-300 hover:border-[#3E9EFF]/40 hover:shadow-md hover:shadow-[#3E9EFF]/5"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <StepCircle number={step.number} />
-                <h4 className="mt-4 mb-3 text-lg font-bold text-white">{step.title}</h4>
-                <p className="text-sm text-gray-300">{step.description}</p>
-                {index < 3 && (
-                  <motion.div 
-                    className="absolute -right-4 top-1/2 hidden -translate-y-1/2 text-[#3E9EFF] lg:block"
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ 
-                      repeat: Infinity, 
-                      duration: 2,
-                      ease: "easeInOut" 
-                    }}
-                  >
-                    <ArrowRight className="h-6 w-6" />
-                  </motion.div>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {features.map((feature, index) => (
-            <FeatureCard
-              key={feature.title}
-              icon={feature.icon}
-              title={feature.title}
-              description={feature.description}
-            />
-          ))}
+          </motion.h2>
+          <motion.p
+            className="mx-auto max-w-2xl text-lg text-muted-foreground"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            Our AI-powered platform combines everything you need to achieve your fitness goals in one place.
+          </motion.p>
         </div>
 
-        <motion.div 
-          className="mt-28 flex flex-col items-center space-y-10"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.5 }}
-        >
-          <h3 className="text-2xl font-bold text-white">All-In-One Fitness Solution</h3>
-          
-          <ul className="grid w-full max-w-5xl grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
-            {[
-              'AI-driven workout creation',
-              'Bi-weekly progress check-ins',
-              'Macro calculation',
-              'Natural language plan editing',
-              'Export to multiple formats',
-              'Customizable notifications',
-              'Secure data storage',
-              'Multiple measurement units',
-              'Detailed technique notes',
-            ].map((feature, i) => (
-              <motion.li 
-                key={feature} 
-                className="flex items-center space-x-3 rounded-lg border border-[#3E9EFF]/20 bg-black/20 px-4 py-3.5 shadow-sm transition-all duration-300 hover:border-[#3E9EFF]/50 hover:bg-[#3E9EFF]/10 hover:shadow-md hover:shadow-[#3E9EFF]/5"
-                whileHover={{ x: 5, scale: 1.02, transition: { duration: 0.2 } }}
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.3, delay: i * 0.05 }}
-              >
-                <motion.div
-                  animate={{ rotate: [0, 10, 0] }}
-                  transition={{ 
-                    repeat: Infinity, 
-                    duration: 4,
-                    ease: "easeInOut",
-                    delay: i * 0.2
-                  }}
-                >
-                  <Zap className="h-5 w-5 flex-shrink-0 text-[#3E9EFF]" />
-                </motion.div>
-                <span className="text-sm font-medium text-white">{feature}</span>
-              </motion.li>
-            ))}
-          </ul>
-
-          <Link href="/sign-up">
-            <Button size="lg" className="mt-5 bg-gradient-to-r from-[#3E9EFF] to-[#3E9EFF]/80 text-white transition-all duration-300 hover:shadow-lg hover:shadow-[#3E9EFF]/20">
-              Start Your Journey <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-        </motion.div>
+        <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <FeatureCard
+            icon={<Brain size={24} />}
+            title="AI Workout Planning"
+            description="Personalized workout plans that adapt to your progress, preferences, and available equipment."
+            delay={0}
+          />
+          <FeatureCard
+            icon={<Target size={24} />}
+            title="Goal Setting & Tracking"
+            description="Set customized fitness goals and track your progress with detailed metrics and visualizations."
+            delay={1}
+          />
+          <FeatureCard
+            icon={<Activity size={24} />}
+            title="Real-time Feedback"
+            description="Get immediate feedback on your form and technique to maximize results and prevent injuries."
+            delay={2}
+          />
+          <FeatureCard
+            icon={<FileText size={24} />}
+            title="Nutrition Planning"
+            description="AI-generated meal plans tailored to your dietary needs, preferences, and fitness goals."
+            delay={3}
+          />
+          <FeatureCard
+            icon={<BarChart3 size={24} />}
+            title="Progress Analytics"
+            description="Comprehensive analytics and insights to understand your fitness journey and optimize your routine."
+            delay={4}
+          />
+          <FeatureCard
+            icon={<Zap size={24} />}
+            title="Adaptive Training"
+            description="Your workout program evolves as you progress, ensuring continuous improvement and challenge."
+            delay={5}
+          />
+        </div>
       </div>
-    </section>
-  )
-})
 
-export { Features }
+      <div className="mt-24 overflow-hidden bg-primary/5 py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid items-center gap-12 md:grid-cols-2">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                <h2 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
+                  <span className={theme === 'dark' ? 'text-gradient-dark' : 'text-gradient-light'}>
+                    How It Works
+                  </span>
+                </h2>
+                <p className="mb-8 text-lg text-muted-foreground">
+                  Get started in minutes and transform your fitness journey with our easy-to-use platform.
+                </p>
+
+                <div className="space-y-8">
+                  {[
+                    {
+                      step: 1,
+                      title: "Create Your Profile",
+                      description: "Answer a few questions about your fitness level, goals, and preferences.",
+                    },
+                    {
+                      step: 2,
+                      title: "Get Your Custom Plan",
+                      description: "Receive an AI-generated workout and nutrition plan tailored to your needs.",
+                    },
+                    {
+                      step: 3,
+                      title: "Track & Improve",
+                      description: "Log your workouts, monitor progress, and watch as the AI adapts your plan.",
+                    },
+                  ].map((item, index) => (
+                    <motion.div
+                      key={index}
+                      className="flex gap-4"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                    >
+                      <div className="relative">
+                        <motion.div
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <span className="text-sm font-bold">{item.step}</span>
+                        </motion.div>
+                        {index < 2 && (
+                          <div className="absolute left-1/2 top-10 h-8 w-0.5 -translate-x-1/2 bg-gradient-to-b from-primary to-transparent" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold">{item.title}</h3>
+                        <p className="text-muted-foreground">{item.description}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="relative mx-auto aspect-square max-w-md rounded-2xl border bg-card p-6 shadow-xl dark:shadow-primary/5"
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                <div className="absolute left-0 right-0 top-0 flex justify-center">
+                  <div className="h-1.5 w-32 rounded-full bg-primary/10">
+                    <div className="h-full w-1/2 rounded-full bg-primary" />
+                  </div>
+                </div>
+                
+                <div className="mt-6 space-y-6">
+                  {[1, 2, 3].map((item) => (
+                    <motion.div
+                      key={item}
+                      className="flex items-center gap-4 rounded-lg border border-border bg-background p-4"
+                      whileHover={{ y: -3, boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)" }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10">
+                        <span className="font-medium text-primary">Step {item}</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="h-2.5 w-24 rounded-full bg-muted" />
+                        <div className="mt-2 h-2 w-32 rounded-full bg-muted" />
+                      </div>
+                      <div className="h-5 w-5 rounded-full bg-muted"></div>
+                    </motion.div>
+                  ))}
+
+                  <motion.div
+                    className="mt-6 rounded-lg bg-primary p-4 text-center font-medium text-primary-foreground"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    Get Started Now
+                  </motion.div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
