@@ -2,158 +2,141 @@
 
 "use client"
 
-import React from 'react'
-import { useEffect, useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
-import Image from 'next/image'
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
 
-const Hero = React.memo(function Hero() {
-  const [titleNumber, setTitleNumber] = useState(0)
-  const titles = useMemo(() => ['Smart', 'Personalized', 'Adaptive', 'Powerful'], [])
+export function Hero() {
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
+  // Handle mouse movement for the background effect
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePosition({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  // Handle theme mounting
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (titleNumber === titles.length - 1) {
-        setTitleNumber(0)
-      } else {
-        setTitleNumber(titleNumber + 1)
-      }
-    }, 2000)
-    return () => clearTimeout(timeoutId)
-  }, [titleNumber, titles])
+    setMounted(true);
+  }, []);
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.3,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { type: "spring", stiffness: 100 }
-    }
-  };
+  if (!mounted) {
+    return null;
+  }
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-b from-[#121212] to-gray-900 py-20 sm:py-28 md:py-32">
-      {/* Decorative elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 right-0 h-96 w-96 rounded-full bg-[#3E9EFF]/10 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-[#3E9EFF]/15 blur-2xl"></div>
-        <div className="absolute top-1/3 left-1/4 h-32 w-32 rounded-full bg-[#3E9EFF]/10 blur-xl"></div>
-        <div className="absolute grid h-full w-full grid-cols-6 opacity-[0.02]">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <div key={i} className="col-span-1 h-full border-r border-[#3E9EFF]/20"></div>
-          ))}
-          {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="col-span-6 w-full border-b border-[#3E9EFF]/20"></div>
-          ))}
-        </div>
+    <div 
+      className="relative w-full overflow-hidden bg-gradient-to-b from-hero-from to-hero-to pt-16 pb-14 md:pt-18 md:pb-16"
+      onMouseMove={handleMouseMove}
+    >
+      {/* Background Grid */}
+      <div className="absolute inset-0 z-0 opacity-10">
+        <div className="grid-background h-full w-full bg-[linear-gradient(to_right,hsl(var(--accent)/0.2)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--accent)/0.2)_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
       </div>
+      
+      {/* Interactive Glow Effect (follows mouse) */}
+      <div 
+        className="pointer-events-none absolute z-0 h-56 w-56 rounded-full bg-primary/20 opacity-70 blur-3xl transition-transform duration-300"
+        style={{ 
+          left: `${mousePosition.x - 112}px`, 
+          top: `${mousePosition.y - 112}px`,
+          opacity: mousePosition.x === 0 ? 0 : 0.7
+        }}
+      />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <motion.div 
-          className="flex flex-col items-center justify-center space-y-10 text-center"
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-        >
-          <motion.div className="space-y-5" variants={itemVariants}>
-            <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
-              <span className="relative flex h-[70px] w-full justify-center overflow-hidden text-center">
-                &nbsp;
-                {titles.map((title, index) => (
-                  <motion.span
-                    key={index}
-                    className="absolute font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-[#3E9EFF]"
-                    initial={{ opacity: 0, y: '-100%' }}
-                    transition={{ type: 'spring', stiffness: 50, damping: 10 }}
-                    animate={
-                      titleNumber === index
-                        ? {
-                            y: 0,
-                            opacity: 1,
-                          }
-                        : {
-                            y: titleNumber > index ? -150 : 150,
-                            opacity: 0,
-                          }
-                    }
-                  >
-                    {title}
-                  </motion.span>
-                ))}
-              </span>
-              <br />
-              <span className="bg-gradient-to-r from-white via-[#3E9EFF] to-white bg-clip-text text-transparent">
-                AI-Powered Fitness
-              </span>
-            </h1>
-            <motion.p 
-              className="mx-auto max-w-2xl text-gray-100 md:text-xl"
-              variants={itemVariants}
+      {/* Floating Circles */}
+      <motion.div 
+        className="absolute right-[5%] top-[10%] h-8 w-8 rounded-full bg-primary/40 blur-sm dark:bg-primary/20"
+        animate={{ y: [0, 15, 0], opacity: [0.5, 0.8, 0.5] }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div 
+        className="absolute left-[5%] top-[50%] h-6 w-6 rounded-full bg-primary/40 blur-sm dark:bg-primary/20"
+        animate={{ y: [0, -20, 0], opacity: [0.6, 0.9, 0.6] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+      />
+      
+      <div className="container relative z-10 mx-auto flex max-w-7xl flex-col items-center px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center w-full">
+          {/* Text Content */}
+          <div className="w-full text-center mb-5">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              Create personalized workout plans and nutrition goals tailored to your body and fitness level with the help of AI.
-            </motion.p>
-          </motion.div>
+              <h1 className="mb-2 text-5xl md:text-6xl lg:text-7xl font-bold logo-text">
+                tr<span className="highlight">AI</span>ner
+              </h1>
+              <h2 className="mb-3 text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+                <span className={theme === 'dark' ? 'text-gradient-dark' : 'text-gradient-light'}>
+                  Your Personal AI-Powered Fitness Coach
+                </span>
+              </h2>
+              <p className="mx-auto mb-4 text-lg text-muted-foreground md:text-xl max-w-2xl">
+                Customized workouts, real-time tracking, and AI-driven insights to help you achieve your fitness goals faster.
+              </p>
+            </motion.div>
+          </div>
           
+          {/* Logo Image instead of Hero image */}
           <motion.div 
-            className="relative mx-auto w-full max-w-4xl"
-            variants={itemVariants}
+            className="relative w-full max-w-3xl mb-6 flex justify-center"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="aspect-[16/9] overflow-hidden rounded-xl border border-[#3E9EFF]/30 bg-black/30 shadow-2xl shadow-[#3E9EFF]/10">
-              <Image 
-                src="/hero-workout.jpg" 
-                alt="AI-powered workout planning" 
-                width={1200}
-                height={675}
-                priority={true}
-                className="rounded-lg object-cover transition-all duration-500 hover:scale-105"
-                onError={(e) => {
-                  // Fallback for missing image
-                  const target = e.target as HTMLImageElement;
-                  target.onerror = null;
-                  target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='675' viewBox='0 0 1200 675' fill='none'%3E%3Crect width='1200' height='675' fill='%23121212'/%3E%3Cpath d='M600 337.5L800 437.5V237.5L600 337.5Z' stroke='%233E9EFF' stroke-width='2'/%3E%3Cpath d='M600 337.5L400 437.5V237.5L600 337.5Z' stroke='%233E9EFF' stroke-width='2'/%3E%3Ccircle cx='600' cy='337.5' r='50' stroke='%233E9EFF' stroke-width='2'/%3E%3Ccircle cx='600' cy='337.5' r='100' stroke='%233E9EFF' stroke-opacity='0.5' stroke-width='2'/%3E%3Ccircle cx='600' cy='337.5' r='150' stroke='%233E9EFF' stroke-opacity='0.2' stroke-width='2'/%3E%3C/svg%3E";
-                }}
+            <div className="relative w-64 h-64 md:w-80 md:h-80">
+              {/* Glowing background effect for the logo */}
+              <div className="absolute inset-0 -m-10 rounded-full bg-primary/10 blur-3xl opacity-60"></div>
+              
+              {/* Pulsing effect */}
+              <motion.div 
+                className="absolute inset-0 rounded-full bg-primary/5" 
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              ></motion.div>
+              
+              <Image
+                src="/new-app-logo.png"
+                alt="trAIner Logo"
+                fill
+                priority
+                className="object-contain z-10 p-4"
               />
-              {/* Overlay glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#121212]/90 via-transparent to-transparent"></div>
+              
+              {/* Additional hover effects */}
+              <motion.div 
+                className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary/20 to-transparent opacity-0"
+                whileHover={{ opacity: 0.6, rotate: 15 }}
+                transition={{ duration: 0.3 }}
+              ></motion.div>
             </div>
           </motion.div>
           
-          <motion.div 
-            className="flex flex-col gap-4 sm:flex-row sm:gap-5"
-            variants={itemVariants}
-          >
-            <Link href="/sign-up" className="w-full sm:w-auto">
-              <Button size="lg" className="relative w-full overflow-hidden bg-gradient-to-r from-[#3E9EFF] to-[#3E9EFF]/80 text-white transition-all duration-300 hover:shadow-lg hover:shadow-[#3E9EFF]/20 sm:w-auto">
-                <span className="relative z-10">Get Started</span>
-                <ArrowRight className="ml-2 h-4 w-4" />
-                <span className="absolute inset-0 translate-y-[100%] bg-gradient-to-r from-[#3E9EFF]/90 to-[#3E9EFF] transition-transform duration-300 hover:translate-y-0"></span>
+          {/* Buttons */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <Link href="/sign-up">
+              <Button className="w-full bg-primary px-8 py-6 text-lg font-semibold text-primary-foreground transition-all duration-300 hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 sm:w-auto">
+                Get Started Free
               </Button>
             </Link>
-            <Link href="#features" className="w-full sm:w-auto">
-              <Button variant="outline" size="lg" className="w-full border-[#3E9EFF]/50 bg-[#121212]/50 text-gray-100 transition-all hover:border-[#3E9EFF]/80 hover:bg-[#3E9EFF]/10 hover:text-white sm:w-auto">
+            <Link href="#features">
+              <Button variant="outline" className="w-full border-border bg-background px-8 py-6 text-lg font-semibold text-foreground transition-all hover:bg-accent hover:text-accent-foreground sm:w-auto">
                 Learn More
               </Button>
             </Link>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </div>
-  )
-})
-
-export { Hero }
+  );
+}
