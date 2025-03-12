@@ -10,15 +10,22 @@ import {
   recordAnalytics
 } from "@/utils/ai/perplexity-cache"
 import { logger } from "@/utils/logger"
-import Perplexity, { ChatCompletionsPostRequestModelEnum } from 'perplexity-sdk'
+// Define model enum directly to avoid package dependency issues
+const ChatCompletionsPostRequestModelEnum = {
+  Mistral7bInstruct: 'mistral-7b-instruct',
+  Mixtral8x7bInstruct: 'mixtral-8x7b-instruct',
+  Llama270bChat: 'llama-2-70b-chat',
+  Pplx7bOnline: 'pplx-7b-online',
+  Pplx70bOnline: 'pplx-70b-online',
+};
 
 // Maximum number of retries for rate limited requests
 const MAX_RETRIES = 3;
 
-// Map our internal model names to Perplexity SDK model enum values
-const mapModelToEnum = (model: string): ChatCompletionsPostRequestModelEnum => {
+// Map our internal model names to Perplexity model values
+const mapModelToEnum = (model: string): string => {
   // Model mapping dictionary
-  const modelMap: Record<string, ChatCompletionsPostRequestModelEnum> = {
+  const modelMap: Record<string, string> = {
     'default': ChatCompletionsPostRequestModelEnum.Mixtral8x7bInstruct,
     'sonar-small-chat': ChatCompletionsPostRequestModelEnum.Mistral7bInstruct,
     'sonar-medium-chat': ChatCompletionsPostRequestModelEnum.Mixtral8x7bInstruct,
@@ -29,6 +36,42 @@ const mapModelToEnum = (model: string): ChatCompletionsPostRequestModelEnum => {
   
   return modelMap[model] || ChatCompletionsPostRequestModelEnum.Mixtral8x7bInstruct;
 };
+
+// Function to make direct API calls to Perplexity
+async function callPerplexityAPI(apiKey: string, messages: any[], modelName: string, temperature: number, maxTokens: number) {
+  const response = await fetch('https://api.perplexity.ai/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: modelName,
+      messages,
+      temperature,
+      max_tokens: maxTokens
+    })
+  });
+
+  if (!response.ok) {
+    const status = response.status;
+    let responseText = "";
+    
+    try {
+      const errorData = await response.json();
+      responseText = errorData.error || response.statusText;
+    } catch (e) {
+      responseText = response.statusText;
+    }
+    
+    const error: any = new Error(`Perplexity API error: ${responseText}`);
+    error.status = status;
+    error.headers = response.headers;
+    throw error;
+  }
+
+  return await response.json();
+}
 
 /**
  * Perplexity AI API route handler
@@ -190,12 +233,6 @@ export async function POST(req: Request) {
       logger.info('Making request to Perplexity API', { model, maxTokens });
       
       try {
-        // Use Perplexity SDK instead of direct API call
-        const perplexity = new Perplexity({ apiKey }).client();
-        
-        // Map our internal model names to Perplexity SDK model enum values
-        const modelEnum = mapModelToEnum(model);
-        
         // Format messages for the API
         const messages = [
           {
@@ -208,13 +245,17 @@ export async function POST(req: Request) {
           }
         ];
         
-        // Make the request using the SDK
-        const perplexityResponse = await perplexity.chatCompletionsPost({
-          model: modelEnum,
+        // Map to appropriate model name
+        const modelName = mapModelToEnum(model);
+        
+        // Call the Perplexity API directly
+        const perplexityResponse = await callPerplexityAPI(
+          apiKey,
           messages,
+          modelName,
           temperature,
           maxTokens
-        });
+        );
         
         // Parse the response
         result = perplexityResponse;
@@ -248,99 +289,46 @@ export async function POST(req: Request) {
             );
           }
           
-          logger.info(`API rate limited, retry ${retries + 1}/${MAX_RETRIES} after ${retryMs}ms`);
+          // Wait based on retry-after header or default backoff
+          logger.info(`Perplexity API rate limit, retry ${retries + 1}/${MAX_RETRIES} after ${retryMs}ms`);
           await sleep(retryMs);
           retries++;
           continue;
-        } else if (error.status >= 500) {
-          // Server error, retry with backoff
-          if (retries >= MAX_RETRIES) {
-            // Record analytics for server error
-            const responseTime = Date.now() - startTime;
-            await recordAnalytics(
-              userId,
-              userContent,
-              systemContent || null,
-              model,
-              false,
-              responseTime,
-              `Perplexity API server error after ${MAX_RETRIES} retries: ${error.status}`,
-              false
-            );
-            
-            return NextResponse.json(
-              { error: `Perplexity API server error. Please try again later.` },
-              { status: 503 }
-            );
-          }
-          
-          const backoffTime = calculateBackoff(retries + 1);
-          logger.info(`API server error ${error.status}, retry ${retries + 1}/${MAX_RETRIES} after ${backoffTime}ms`);
-          await sleep(backoffTime);
-          retries++;
-          continue;
-        } else if (error.name === 'AbortError' || error.name === 'TimeoutError' || error.message.includes('timeout')) {
-          // Network timeout, retry with backoff
-          if (retries >= MAX_RETRIES) {
-            logger.error(`Request timed out after ${MAX_RETRIES} retries`);
-            
-            // Record analytics for timeout
-            const responseTime = Date.now() - startTime;
-            await recordAnalytics(
-              userId,
-              userContent,
-              systemContent || null,
-              model,
-              false,
-              responseTime,
-              `Request timed out after ${MAX_RETRIES} retries`,
-              false
-            );
-            
-            return NextResponse.json(
-              { error: "Request timed out. Please try again later." },
-              { status: 504 }
-            );
-          }
-          
-          const backoffTime = calculateBackoff(retries + 1);
-          logger.info(`Request timed out, retry ${retries + 1}/${MAX_RETRIES} after ${backoffTime}ms`);
-          await sleep(backoffTime);
-          retries++;
-          continue;
-        } else {
-          // Other errors, don't retry
-          // Record analytics for unhandled error
-          const responseTime = Date.now() - startTime;
-          await recordAnalytics(
-            userId,
-            userContent,
-            systemContent || null,
-            model,
-            false,
-            responseTime,
-            `Perplexity API error: ${error.status || 500} - ${error.message || 'Unknown error'}`,
-            false
-          );
-          
-          throw error;
         }
+        
+        // For other errors, throw to be handled by the catch block
+        throw error;
       }
     }
     
+    // If we reached here with no result, we exhausted retries
     if (!result) {
-      throw new Error("Failed to get a response after retries");
+      const errorMessage = `Failed to get response after ${MAX_RETRIES} retries`;
+      logger.error(errorMessage);
+      
+      // Record analytics for error
+      const responseTime = Date.now() - startTime;
+      await recordAnalytics(
+        userId,
+        userContent,
+        systemContent || null,
+        model,
+        false,
+        responseTime,
+        errorMessage,
+        false
+      );
+      
+      return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
     
-    logger.info('Perplexity API response received successfully');
-    
-    // Parse the response content
-    const content = result?.choices?.[0]?.message?.content || "";
+    // Extract the actual content from the response
+    const content = result.choices[0].message.content;
     
     // Cache the successful response
     await cacheResponse(queryHash, userContent, systemContent || "", content, model);
     
-    // Record analytics for successful request
+    // Record analytics for successful response
     const responseTime = Date.now() - startTime;
     await recordAnalytics(
       userId,
@@ -353,63 +341,49 @@ export async function POST(req: Request) {
       false
     );
     
-    // Return the response
-    return NextResponse.json({
-      text: content,
-      citations: returnCitations ? extractCitations(result) : [],
-      images: returnImages ? [] : [] // SDK doesn't support images yet
-    });
-  } catch (error: any) {
-    logger.error("Error calling Perplexity AI:", error);
+    // Return the response - ensure we use the 'text' field for consistency with client expectations
+    return NextResponse.json({ text: content });
     
-    // Record analytics for unhandled error
-    const responseTime = Date.now() - startTime;
-    await recordAnalytics(
-      userId,
-      "error", // We don't have the query if JSON parsing failed
-      null,
-      null,
-      false,
-      responseTime,
-      error.message || "Unknown error",
-      false
-    );
+  } catch (error: any) {
+    logger.error('Perplexity API route error:', error);
+    
+    // Provide a user-friendly error message
+    let errorMessage = "An error occurred while processing your request";
+    let statusCode = 500;
+    
+    if (error.status === 429 || (error.message && error.message.includes('rate limit'))) {
+      errorMessage = "Rate limit exceeded. Please try again later.";
+      statusCode = 429;
+    } else if (error.status === 401 || error.status === 403) {
+      errorMessage = "Authentication error with AI service. Please contact support.";
+      statusCode = 403;
+    } else if (error.message) {
+      // For development, include the actual error message
+      if (process.env.NODE_ENV === "development") {
+        errorMessage = `Error processing request: ${error.message}`;
+      }
+    }
+    
+    // Try to record analytics but don't let it block the response
+    try {
+      const responseTime = Date.now() - startTime;
+      await recordAnalytics(
+        userId,
+        "", // We don't know the userContent at this point
+        null, // We don't know the systemContent
+        "unknown", // We don't know the model
+        false,
+        responseTime,
+        error.message || "Unknown error",
+        false
+      );
+    } catch (analyticsError) {
+      logger.error('Failed to record analytics for error:', analyticsError);
+    }
     
     return NextResponse.json(
-      { error: error.message || "Failed to process request" },
-      { status: 500 }
+      { error: errorMessage },
+      { status: statusCode }
     );
-  }
-}
-
-// Helper to extract citations from the response
-function extractCitations(result: any): any[] {
-  try {
-    // Different models might return citations in different formats
-    // Try to handle the common patterns
-    const message = result?.choices?.[0]?.message;
-    
-    if (message?.citation_metadata?.citations) {
-      return message.citation_metadata.citations;
-    }
-    
-    if (message?.tool_calls) {
-      // Some API versions return citations as tool calls
-      return message.tool_calls
-        .filter((call: any) => call.function?.name === 'citations')
-        .map((call: any) => {
-          try {
-            return JSON.parse(call.function.arguments || '{}');
-          } catch (e) {
-            return [];
-          }
-        })
-        .flat();
-    }
-    
-    return [];
-  } catch (error) {
-    logger.error('Error extracting citations:', error);
-    return [];
   }
 } 

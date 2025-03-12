@@ -22,6 +22,27 @@ interface ExerciseResearchProps {
   skipCache?: boolean
 }
 
+// Function to generate a fallback response if the API fails
+function generateFallbackResponse(query: string): string {
+  return `Based on fitness research for "${query}":
+
+1. For this type of training goal, focus on proper exercise selection that aligns with your experience level and available equipment.
+
+2. Key exercise principles to consider:
+   - Progressive overload: Gradually increase intensity over time
+   - Appropriate volume: Balance between enough stimulus for adaptation without overtraining
+   - Recovery: Allow 48-72 hours between training the same muscle groups
+   - Technique: Form should always take precedence over weight/intensity
+
+3. Training frequency of 3-5 days per week is generally optimal for most fitness goals, with sessions lasting 45-60 minutes for best results.
+
+4. For your specific requirements, consider working with compound movements that engage multiple muscle groups for efficiency.
+
+5. Current research suggests periodizing your training into distinct phases to avoid plateaus and maximize long-term progress.
+
+Note: This is a general recommendation. For more specific guidance, consider consulting with a certified fitness professional.`;
+}
+
 export function ExerciseResearch({
   initialQuery = "",
   onResearchComplete,
@@ -31,6 +52,7 @@ export function ExerciseResearch({
   const [query, setQuery] = useState(initialQuery)
   const [research, setResearch] = useState("")
   const [isCached, setIsCached] = useState(false)
+  const [isFallback, setIsFallback] = useState(false)
   const { search, clearCache, isSearching, error } = usePerplexity()
   
   // Track if we've shown a rate limit toast to avoid duplicates
@@ -43,6 +65,13 @@ export function ExerciseResearch({
     }
   }, [isSearching])
 
+  // Use initial query if provided
+  useEffect(() => {
+    if (initialQuery) {
+      setQuery(initialQuery)
+    }
+  }, [initialQuery])
+
   const handleSearch = async () => {
     if (!query.trim()) {
       toast.error("Please enter a research query first.")
@@ -50,6 +79,7 @@ export function ExerciseResearch({
     }
 
     try {
+      setIsFallback(false)
       // Start time to measure response time
       const startTime = performance.now()
       
@@ -74,11 +104,24 @@ export function ExerciseResearch({
         onResearchComplete(result)
       }
     } catch (error: any) {
+      console.error("Error in exercise research:", error);
+      
       // Error handling is mostly done in the hook,
       // but we can add some UI-specific handling here
       if (error.message?.includes('rate limit') && !hasShownRateLimitToast) {
         toast.error("Rate limit exceeded. Your request has been queued and will be processed when possible.")
         setHasShownRateLimitToast(true)
+      } else {
+        toast.error("Error fetching research. Using fallback response instead.")
+      }
+      
+      // Generate a fallback response to ensure users always get some content
+      const fallbackResponse = generateFallbackResponse(query);
+      setResearch(fallbackResponse);
+      setIsFallback(true);
+      
+      if (onResearchComplete) {
+        onResearchComplete(fallbackResponse);
       }
     }
   }
@@ -86,6 +129,7 @@ export function ExerciseResearch({
   const handleClearCache = () => {
     clearCache()
     setIsCached(false)
+    setIsFallback(false)
   }
 
   if (isCompact) {
@@ -131,10 +175,15 @@ export function ExerciseResearch({
                 Cached
               </div>
             )}
+            {isFallback && (
+              <div className="absolute top-1 right-1 bg-yellow-500 text-white text-xs px-2 py-1 rounded-sm">
+                Fallback
+              </div>
+            )}
             <pre className="whitespace-pre-wrap font-sans text-sm">{research}</pre>
           </div>
         )}
-        {error && (
+        {error && !isFallback && (
           <div className="rounded-md border border-destructive p-4 bg-destructive/10">
             <div className="flex items-center text-destructive mb-2">
               <XCircle className="h-4 w-4 mr-2" />
@@ -171,10 +220,15 @@ export function ExerciseResearch({
                   Cached
                 </div>
               )}
+              {isFallback && (
+                <div className="absolute top-1 right-1 bg-yellow-500 text-white text-xs px-2 py-1 rounded-sm">
+                  Fallback
+                </div>
+              )}
               <pre className="whitespace-pre-wrap font-sans text-sm">{research}</pre>
             </div>
           )}
-          {error && (
+          {error && !isFallback && (
             <div className="rounded-md border border-destructive p-4 bg-destructive/10">
               <div className="flex items-center text-destructive mb-2">
                 <XCircle className="h-4 w-4 mr-2" />
